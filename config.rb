@@ -1,10 +1,11 @@
 require 'redcarpet'
 require 'active_support/core_ext'
+require 'pry'
 
 Dir['./lib/*'].each { |f| require f }
 
 # Debugging
-set(:logging, ENV['RACK_ENV'] != 'production')
+set :logging, ENV['RACK_ENV'] != 'production'
 
 set :markdown_engine, :redcarpet
 set :markdown, :layout_engine => :erb,
@@ -12,7 +13,7 @@ set :markdown, :layout_engine => :erb,
          :lax_html_blocks => true,
          :renderer => Highlighter::HighlightedHTML.new
 
-activate :directory_indexes
+# activate :directory_indexes
 activate :toc
 activate :highlighter
 
@@ -24,25 +25,25 @@ activate :api_docs,
 # Blog
 ###
 
-activate :blog do |blog|
-  blog.prefix = 'blog'
-  blog.layout = 'layouts/blog'
-  blog.tag_template = 'blog/tag.html'
-end
+# activate :blog do |blog|
+#   blog.prefix = 'blog'
+#   blog.layout = 'layouts/blog'
+#   blog.tag_template = 'blog/tag.html'
+# end
 
-page '/blog/feed.xml', layout: false
+# page '/blog/feed.xml', layout: false
 
-###
-# Pages
-###
+# ###
+# # Pages
+# ###
 
-page 'guides*', layout: :guide do
-  @guides = data.guides
-end
+# page 'guides*', layout: :guide do
+#   @guides = data.guides
+# end
 
-page 'community.html'
+# page 'community.html'
 
-page 'index.html', proxy: 'about.html'
+# page 'index.html', proxy: 'api/index.html'
 
 page '404.html', directory_index: false
 

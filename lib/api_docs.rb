@@ -14,16 +14,16 @@ module APIDocs
       app.after_configuration do
         ApiClass.data = data.api
 
-        page '/api*', directory_index: false, layout: 'layouts/api'
+        page '/*', directory_index: false, layout: 'layouts/api'
 
         data.api.fetch('classes').each do |name, data|
-          page "/api/classes/#{name}.html", proxy: 'api/class.html', layout: 'layouts/api' do
+          page "/classes/#{name}.html", proxy: 'api/class.html', layout: 'layouts/api' do
             @title = name
             @class = ApiClass.find(name)
           end
 
           if name == options[:default_class]
-            page '/api/index.html', proxy: 'api/class.html', layout: 'layouts/api' do
+            page '/index.html', proxy: 'api/class.html', layout: 'layouts/api' do
               @title = name
               @class = ApiClass.find(name)
             end
@@ -31,7 +31,7 @@ module APIDocs
         end
 
         data.api.fetch('modules').each do |name, data|
-          page "/api/modules/#{name}.html", proxy: 'api/module.html', layout: 'layouts/api' do
+          page "/modules/#{name}.html", proxy: 'api/module.html', layout: 'layouts/api' do
             @title = name
             @module = data
           end
@@ -152,6 +152,8 @@ module APIDocs
       category_match = request_key[:category] == key[:category]
       name_match = request_key[:name] == key[:name]
 
+      # logger.info "#{request_key[:category]}, #{request_key[:name]}, #{key[:category]}, #{key[:name]}"
+
       if key[:name].present?
         category_match and name_match
       else
@@ -181,6 +183,7 @@ module APIDocs
 
 
     def _request_as_key
+      # logger.info request.path
       path = request.path.split('/')
       file = File.basename(path.pop, '.html')
 
@@ -249,11 +252,19 @@ module APIDocs
     end
 
     def api_classes
-      data.api['classes'].select{|_,c| !c['static'] }.sort
+      data.api['classes'].sort
     end
 
     def api_namespaces
       data.api['classes'].select{|_,c| c['static'] }.sort
+    end
+
+    def api_methods
+      data.api['classitems'].select {|x| x['itemtype'] == 'method'}.sort_by {|x| x['name']}
+    end
+
+    def api_properties
+      data.api['classitems'].select {|x| x['itemtype'] == 'property'}.sort_by {|x| x['name']}
     end
 
     def api_file_link(item, options = {})
@@ -288,7 +299,7 @@ module APIDocs
     alias :api_namespace :api_class
 
     def api_module_link(name, anchor=nil)
-      link = "/api/modules/#{name}.html"
+      link = "/modules/#{name}.html"
       link += '#'+anchor if anchor
       link_to name, link
     end
@@ -296,7 +307,7 @@ module APIDocs
     def api_class_link(name, anchor=nil)
       klass = api_class(name)
       if klass && !klass.native
-        link = "/api/classes/#{name}.html"
+        link = "/classes/#{name}.html"
         link += '#'+anchor if anchor
         link_to name, link
       else
@@ -304,6 +315,18 @@ module APIDocs
       end
     end
     alias :api_namespace_link :api_class_link
+
+    def api_method_link(name, clazz)
+      klass = api_class(clazz)
+      if klass && !klass.native
+        link = "/classes/#{clazz}.html"
+        link += '#' + name
+        link_to name, link
+      else
+        name
+      end
+    end
+    alias :api_property_link :api_method_link
 
     def api_classes_for_item(item)
       classes = [item['access']]

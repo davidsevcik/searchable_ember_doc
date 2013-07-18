@@ -26,6 +26,8 @@
             ls.setItem('api-options-' + type, this.checked);
         }
 
+        $('#search').liveUpdate('all-items').focus();
+
         $('#api-options input').each(initApiOptions);
         $('#api-options input').each(toggleType);
         $('#api-options input').on('change', toggleType);
@@ -97,30 +99,8 @@
   <% end %>
 
   <% content_for :sidebar do %>
-    <ol id='toc-list'>
+    <ol id='toc-list' style="display:none">
       <li class='level-1'><a href="<%= sha_url %>" target="_blank"> Tag: <%= sha %></a></li>
-
-      <% li_for(:modules) do %>
-        <a href='#'>Modules</a>
-        <% ol_for(:modules) do %>
-          <% api_modules.each do |id, data| %>
-            <% li_for(:modules, name: data['name'], class: 'sub-selected') do %>
-              <%= api_module_link data['name'] %>
-            <% end %>
-          <% end %>
-        <% end %>
-      <% end %>
-
-      <% li_for(:namespaces) do %>
-        <a href='#'>Namespaces</a>
-        <% ol_for(:namespaces) do %>
-          <% api_namespaces.each do |id, data| %>
-            <% li_for(:namespaces, name: data['name'], class: 'sub-selected') do %>
-              <%= api_namespace_link data['name'] %>
-            <% end %>
-          <% end %>
-        <% end %>
-      <% end %>
 
       <% li_for(:classes) do %>
         <a href='#'>Classes</a>
@@ -132,6 +112,55 @@
           <% end %>
         <% end %>
       <% end %>
+
+      <% li_for(:methods) do %>
+        <a href='#'>Methods</a>
+        <% ol_for(:methods) do %>
+          <% api_methods.each do |data| %>
+            <% li_for(:methods, name: data['name'], class: 'sub-selected') do %>
+              <%= api_method_link data['name'], data['class']  %>
+            <% end %>
+          <% end %>
+        <% end %>
+      <% end %>
+
+      <% li_for(:properties) do %>
+        <a href='#'>Properties</a>
+        <% ol_for(:properties) do %>
+          <% api_properties.each do |data| %>
+            <% li_for(:properties, name: data['name'], class: 'sub-selected') do %>
+              <%= api_property_link data['name'], data['class']  %>
+            <% end %>
+          <% end %>
+        <% end %>
+      <% end %>
+    </ol>
+
+    <ol id='toc-list'>
+      <li class='level-1'><a href="<%= sha_url %>" target="_blank"> Tag: <%= sha %></a></li>
+
+      <% li_for(:classes) do %>
+        <!-- <a href='#'>Classes</a> -->
+        <input type="Search" placeholder="Search" autosave="searchdoc" results="10" id="search" autocomplete="off">
+        <ol class="selected" id="all-items">
+          <% api_classes.each do |id, data| %>
+            <% li_for(:classes, name:data['name'], class: 'sub-selected') do %>
+              <%= api_class_link data['name'] %> <span class="score"></span>
+            <% end %>
+          <% end %>
+          <% api_methods.each do |data| %>
+            <% li_for(:methods, name: data['name'], class: 'sub-selected') do %>
+              <%= api_method_link data['name'], data['class']  %> <span class="score"></span>
+            <% end %>
+          <% end %>
+          <% api_properties.each do |data| %>
+            <% li_for(:properties, name: data['name'], class: 'sub-selected') do %>
+              <%= api_property_link data['name'], data['class']  %> <span class="score"></span>
+            <% end %>
+          <% end %>
+        </ol>
+      <% end %>
+    </ol>
   <% end %>
   <%= yield %>
 <% end %>
