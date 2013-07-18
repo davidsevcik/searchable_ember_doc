@@ -14,7 +14,7 @@ module APIDocs
       app.after_configuration do
         ApiClass.data = data.api
 
-        page '/*', directory_index: false, layout: 'layouts/api'
+        # page '/*', directory_index: false, layout: 'layouts/api'
 
         data.api.fetch('classes').each do |name, data|
           page "/classes/#{name}.html", proxy: 'api/class.html', layout: 'layouts/api' do
@@ -23,7 +23,7 @@ module APIDocs
           end
 
           if name == options[:default_class]
-            page '/index.html', proxy: 'api/class.html', layout: 'layouts/api' do
+            page '/default-class.html', proxy: 'api/class.html', layout: 'layouts/api' do
               @title = name
               @class = ApiClass.find(name)
             end
@@ -304,29 +304,39 @@ module APIDocs
       link_to name, link
     end
 
-    def api_class_link(name, anchor=nil)
+    def api_class_link(name, anchor=nil, &block)
       klass = api_class(name)
       if klass && !klass.native
         link = "/classes/#{name}.html"
         link += '#'+anchor if anchor
-        link_to name, link
+        concat link_to(block_given? ? capture(&block) : name, link)
       else
-        name
+        block_given? ? capture(&block) : name
       end
     end
     alias :api_namespace_link :api_class_link
 
-    def api_method_link(name, clazz)
+    def api_method_link(name, clazz, &block)
       klass = api_class(clazz)
       if klass && !klass.native
         link = "/classes/#{clazz}.html"
-        link += '#' + name
-        link_to name, link
+        link += '#method_' + name
+        concat link_to(block_given? ? capture(&block) : name, link)
       else
-        name
+        block_given? ? capture(&block) : name
       end
     end
-    alias :api_property_link :api_method_link
+
+    def api_property_link(name, clazz, &block)
+      klass = api_class(clazz)
+      if klass && !klass.native
+        link = "/classes/#{clazz}.html"
+        link += '#property_' + name
+        concat link_to(block_given? ? capture(&block) : name, link)
+      else
+        block_given? ? capture(&block) : name
+      end
+    end
 
     def api_classes_for_item(item)
       classes = [item['access']]

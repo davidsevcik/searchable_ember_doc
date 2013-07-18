@@ -17,8 +17,8 @@
       @field.parents("form").submit ->
         false
 
-      @field.keyup ->
-        self.filter()
+      @field.keyup -> self.filter()
+      @field.on 'search', -> self.filter()
 
       self.filter()
 
@@ -34,7 +34,7 @@
       @rows = []
       @list.children("li").each ->
         jqElm = $(@)
-        self.cache.push jqElm.text().trim().replace(/^Ember./, '').toLowerCase()
+        self.cache.push jqElm.find('.name').text().trim().replace(/^Ember./, '').toLowerCase()
         self.rows.push jqElm
 
       @cache_length = @cache.length

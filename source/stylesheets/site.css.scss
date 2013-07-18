@@ -20,7 +20,7 @@ $black-color: #252525;
 
 body {
   background: url('/images/background-shades.png') no-repeat top center #faf4f1;
-  margin: 60px 0 0 0;
+  margin: 0;
   padding: 0;
   font-family: 'Helvetica Neue', Helvetica, Arial, Sans-Serif;
   font-size: 14px;
@@ -28,6 +28,9 @@ body {
   color: #444444;
   font-weight: normal;
   -webkit-font-smoothing: antialiased;
+}
+body.search-sidebar {
+  background: rgb(244, 236, 233);;
 }
 
 sup {
@@ -209,34 +212,41 @@ ol {
 #sidebar {
   font-family: 'Maven Pro';
   font-weight: normal;
-  margin-top: 38px;
-  float: left;
-  width: $sidebar-width;
-  min-height: 475px;
-  margin-bottom: 28px;
-  padding-bottom: 120px;
-  background: #f4ece9;
-  border-left: 1px solid #d4ccc8;
-  border-right: 1px solid #d4ccc8;
-  position: relative;
+  // background: #f4ece9;
+  // position: relative;
 
-  #back-to-top {
-    padding-left: 13px;
-    text-align: center;
-    display: none;
-    @include transition(opacity 0.05s linear);
+  // #back-to-top {
+  //   padding-left: 13px;
+  //   text-align: center;
+  //   display: none;
+  //   @include transition(opacity 0.05s linear);
 
-    @media screen and (max-width: 1200px) {
-      padding-left: 0px;
-      height: 20px;
-      width: 30px;
-      overflow: hidden;
-    }
+  //   @media screen and (max-width: 1200px) {
+  //     padding-left: 0px;
+  //     height: 20px;
+  //     width: 30px;
+  //     overflow: hidden;
+  //   }
 
-    @media screen and (max-width: 1020px) {
-      display: none !important;
+  //   @media screen and (max-width: 1020px) {
+  //     display: none !important;
+  //   }
+  // }
+
+  #search {
+    background-color: #f16f58;
+    background-image: linear-gradient(-90deg, #f67862, #e7624b);
+    background-image: -o-linear-gradient(-90deg, #f67862, #e7624b);
+    background-image: -moz-linear-gradient(-90deg, #f67862, #e7624b);
+    background-image: -ms-linear-gradient(-90deg, #f67862, #e7624b);
+    background-image: -webkit-linear-gradient(-90deg, #f67862, #e7624b);
+    outline: 1px solid #b23e2a;
+    padding: 12px 12px 10px 12px;
+    input {
+      width: 100%;
     }
   }
+
 
   a {
     display: inline-block;
@@ -259,6 +269,7 @@ ol {
 
   ol#toc-list {
     background: #f9e7e4;
+    overflow: auto;
     li {
       font-size: 12px;
       list-style: none;
@@ -272,6 +283,11 @@ ol {
       a {
         padding: 0 0 0 1em;
         line-height: 1.2em;
+
+        .context {
+          color: #717171;
+          font-size: 0.8em;
+        }
       }
 
       > ol {
@@ -294,33 +310,13 @@ ol {
       }
 
       &.level-1 {
-        text-transform: uppercase;
-
-        > a {
-          display: block;
-          color: #443331;
-          outline: 1px solid #d5ccc8;
-          padding: 12px 12px 10px 12px;
-          margin-top: 1px;
-          background-color: rgb(244, 236, 233);
-        }
-
-        &.selected > a {
-          background-color: #f16f58;
-          background-image:         linear-gradient(-90deg, #f67862, #e7624b);
-          background-image:      -o-linear-gradient(-90deg, #f67862, #e7624b);
-          background-image:    -moz-linear-gradient(-90deg, #f67862, #e7624b);
-          background-image:     -ms-linear-gradient(-90deg, #f67862, #e7624b);
-          background-image: -webkit-linear-gradient(-90deg, #f67862, #e7624b);
-          outline: 1px solid #b23e2a;
-          color: white;
-          border-top: 1px solid rgba(255, 255, 255, 0.4);
-        }
-
-        &:last-of-type ol {
-          border-bottom: 1px solid #d5ccc8;
-          padding-bottom: 0.5em;
-        }
+        display: block;
+        color: #443331;
+        outline: 1px solid #d5ccc8;
+        // padding: 12px 12px 10px 12px;
+        padding: 6px 1em 6px 1em;
+        margin-top: 1px;
+        // background-color: #f4ece9;
       }
 
       &.level-2, &.level-3 {
@@ -347,15 +343,15 @@ ol {
     }
   }
 
-  &:after {
-    @include background-image(linear-gradient(rgba(250, 244, 241, 0), rgba(251, 245, 241, 1)));
-    position: absolute;
-    bottom: 0px;
-    left: -1px;
-    width: 220px;
-    height: 120px;
-    content: '';
-  }
+  // &:after {
+  //   @include background-image(linear-gradient(rgba(250, 244, 241, 0), rgba(251, 245, 241, 1)));
+  //   position: absolute;
+  //   bottom: 0px;
+  //   left: -1px;
+  //   width: 220px;
+  //   height: 120px;
+  //   content: '';
+  // }
 }
 
 #guide_search {
@@ -493,16 +489,6 @@ ol {
     }
   }
 
-  #search{
-    form input.st-search-input{
-      margin-left: 12px;
-      font-size: 100%;
-      padding: 2px 9px 2px 27px;
-      height: 26px;
-      background-position: 7px 6px;
-      width: 150px;
-    }
-  }
 
   #github {
     position: absolute;
@@ -550,7 +536,7 @@ ol {
 #content-wrapper {
   @include clearfix;
   width: 960px;
-  padding: 0px 0px 20px 0px;
+  padding: 25px 25px 20px 25px;
   margin: 0 auto;
   position: relative;
 

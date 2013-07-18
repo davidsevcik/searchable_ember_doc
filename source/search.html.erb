@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <%= stylesheet_link_tag "site" %>
+
+  <script type="text/javascript" src="/javascripts/jquery.js"></script>
+  <script type="text/javascript" src="/javascripts/quicksilver.js"></script>
+  <script type="text/javascript" src="/javascripts/jquery.livesearch.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      $('#toc-list a').click(function() {
+        link = $(this);
+        window.parent.frames.doc.location.href = link.attr('href');
+        return false;
+      });
+      $('#search input').liveUpdate('all-items').focus();
+    });
+  </script>
+</head>
+<body class="search-sidebar">
+  <div id="sidebar">
+    <div id="search">
+      <input type="Search" placeholder="Search" autosave="searchdoc" autocomplete="off">
+    </div>
+    <ol id='toc-list'>
+      <% li_for(:classes) do %>
+        <!-- <a href='#'>Classes</a> -->
+        <ol class="selected" id="all-items">
+          <% api_classes.each do |id, data| %>
+            <% li_for(:classes, name: data['name'], class: 'sub-selected') do %>
+              <% link_to "/classes/#{data['name']}.html" do %>
+                <span class="name"><%= data['name'] %></span>
+              <% end %>
+            <% end %>
+          <% end %>
+          <% api_methods.each do |data| %>
+            <% li_for(:methods, name: data['name'], class: 'sub-selected') do %>
+              <% link_to "/classes/#{data['class']}.html#method_#{data['name']}" do %>
+                <span class="name"><%= data['name'] %></span>
+                <span class="context"><%= data['class'] %></span>
+              <% end %>
+            <% end %>
+          <% end %>
+          <% api_properties.each do |data| %>
+            <% li_for(:properties, name: data['name'], class: 'sub-selected') do %>
+              <% link_to "/classes/#{data['class']}.html#property_#{data['name']}" do %>
+                <span class="name"><%= data['name'] %></span>
+                <span class="context"><%= data['class'] %></span>
+              <% end %>
+            <% end %>
+          <% end %>
+        </ol>
+      <% end %>
+    </ol>
+  </div>
+</body>
+</html>

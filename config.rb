@@ -43,7 +43,8 @@ activate :api_docs,
 
 # page 'community.html'
 
-# page 'index.html', proxy: 'api/index.html'
+page 'index.html', layout: false
+page 'search.html', layout: false
 
 page '404.html', directory_index: false
 

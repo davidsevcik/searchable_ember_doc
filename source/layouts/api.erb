@@ -1,166 +1,132 @@
-<% wrap_layout :layout do %>
-  <% content_for :head do %>
-    <script>
-      $(function() {
-        var ls = window['localStorage'];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Ember.js - <%= data.page.title || @title %></title>
+  <link rel="shortcut icon" href="/images/favicon.png" />
+  <%= stylesheet_link_tag "site" %>
+  <%= stylesheet_link_tag "highlight" %>
 
-        // Restoring method visibility preference from localStorage
-        function initApiOptions() {
-          var type = this.getAttribute('data-type'),
-            checked = ls ? ls.getItem('api-options-' + type) : undefined;
+  <script type="text/javascript" src="/javascripts/jquery.js"></script>
+  <script type="text/javascript" src="/javascripts/jquery.bxSlider.min.js"></script>
 
-          if (checked != undefined) {
-            // Bools are stored as strings in localStorage
-            checked = checked == 'true';
-            $(this).attr('checked', checked);
-          }
-        };
+  <script>
+    $(function() {
+      var ls = window['localStorage'];
 
-        // Type toggling
-        function toggleType() {
-          var type = this.getAttribute('data-type');
+      // Restoring method visibility preference from localStorage
+      function initApiOptions() {
+        var type = this.getAttribute('data-type'),
+          checked = ls ? ls.getItem('api-options-' + type) : undefined;
 
-          $('.'+type).toggle(this.checked);
-
-          if(ls)
-            ls.setItem('api-options-' + type, this.checked);
+        if (checked != undefined) {
+          // Bools are stored as strings in localStorage
+          checked = checked == 'true';
+          $(this).attr('checked', checked);
         }
+      };
 
-        $('#search').liveUpdate('all-items').focus();
+      // Type toggling
+      function toggleType() {
+        var type = this.getAttribute('data-type');
 
-        $('#api-options input').each(initApiOptions);
-        $('#api-options input').each(toggleType);
-        $('#api-options input').on('change', toggleType);
+        $('.'+type).toggle(this.checked);
 
-        // Tabs
-        $('.tabs .pane').hide();
-        $('.tabs .pane:first').show();
-        $('.tabs ul li:first').addClass('active');
+        if(ls)
+          ls.setItem('api-options-' + type, this.checked);
+      }
 
-        function showPane($tabs, href) {
-          var $ul = $tabs.find('> ul'),
-              $tab = $ul.find('a[href='+href+']'),
-              $pane = $(href);
+      $('#api-options input').each(initApiOptions);
+      $('#api-options input').each(toggleType);
+      $('#api-options input').on('change', toggleType);
 
-          $ul.find('li').removeClass('active');
-          $tab.parent().addClass('active');
-          $tabs.find('.pane').hide();
+      // Tabs
+      $('.tabs .pane').hide();
+      $('.tabs .pane:first').show();
+      $('.tabs ul li:first').addClass('active');
 
-          $pane.show();
-        }
+      function showPane($tabs, href) {
+        var $ul = $tabs.find('> ul'),
+            $tab = $ul.find('a[href='+href+']'),
+            $pane = $(href);
 
-        $('.tabs > ul li a').click(function(){
-          var $el = $(this),
-              $tabs = $el.parents('.tabs'),
-              href = $el.attr('href');
+        $ul.find('li').removeClass('active');
+        $tab.parent().addClass('active');
+        $tabs.find('.pane').hide();
 
-          showPane($tabs, href);
+        $pane.show();
+      }
 
-          return false;
-        });
+      $('.tabs > ul li a').click(function(){
+        var $el = $(this),
+            $tabs = $el.parents('.tabs'),
+            href = $el.attr('href');
 
-        // Auto tab
-        function checkHash() {
-          var hash = window.location.hash;
-          var $el = $(hash);
-          if ($el.length > 0 && !$el.is(':visible')) {
-            showPane($el.parents('.tabs'), '#'+$el.parents('.pane').attr('id'));
-            $("html, body").scrollTop($el.offset().top);
-          } else if ($el.length == 0) {
-            showPane($('.tabs'), '#index');
-          }
-        }
-
-        $(window).on('hashchange', checkHash);
-        checkHash();
-      });
-    $(function(){
-      $("#toc-list .level-1 > a").not('[target=_blank]').click(function() {
-        $(this).parent().find('> ol').slideToggle(function() {
-          positionBackToTop(true);
-        });
+        showPane($tabs, href);
 
         return false;
       });
 
-      $(function(){
-        $('.anchorable-toc').each(function(){
-          var toc = $(this),
-          id = toc.data('id') || toc.attr('id'),
-          href = "#" + id,
-          anchor = '<a class="toc-anchor" href="'+href+'"></a>';
+      // Auto tab
+      function checkHash() {
+        var hash = window.location.hash;
+        var $el = $(hash);
+        if ($el.length > 0 && !$el.is(':visible')) {
+          showPane($el.parents('.tabs'), '#'+$el.parents('.pane').attr('id'));
+          $("html, body").scrollTop($el.offset().top);
+        } else if ($el.length == 0) {
+          showPane($('.tabs'), '#index');
+        }
+      }
 
-          toc.prepend(anchor);
-        });
+      $(window).on('hashchange', checkHash);
+      checkHash();
+    });
+  $(function(){
+    $("#toc-list .level-1 > a").not('[target=_blank]').click(function() {
+      $(this).parent().find('> ol').slideToggle(function() {
+        positionBackToTop(true);
       });
 
+      return false;
     });
-    </script>
-  <% end %>
 
-  <% content_for :sidebar do %>
-    <ol id='toc-list' style="display:none">
-      <li class='level-1'><a href="<%= sha_url %>" target="_blank"> Tag: <%= sha %></a></li>
+    $(function(){
+      $('.anchorable-toc').each(function(){
+        var toc = $(this),
+        id = toc.data('id') || toc.attr('id'),
+        href = "#" + id,
+        anchor = '<a class="toc-anchor" href="'+href+'"></a>';
 
-      <% li_for(:classes) do %>
-        <a href='#'>Classes</a>
-        <% ol_for(:classes) do %>
-          <% api_classes.each do |id, data| %>
-            <% li_for(:classes, name:data['name'], class: 'sub-selected') do %>
-              <%= api_class_link data['name'] %>
-            <% end %>
-          <% end %>
-        <% end %>
-      <% end %>
+        toc.prepend(anchor);
+      });
+    });
 
-      <% li_for(:methods) do %>
-        <a href='#'>Methods</a>
-        <% ol_for(:methods) do %>
-          <% api_methods.each do |data| %>
-            <% li_for(:methods, name: data['name'], class: 'sub-selected') do %>
-              <%= api_method_link data['name'], data['class']  %>
-            <% end %>
-          <% end %>
-        <% end %>
-      <% end %>
+  });
+  </script>
+</head>
 
-      <% li_for(:properties) do %>
-        <a href='#'>Properties</a>
-        <% ol_for(:properties) do %>
-          <% api_properties.each do |data| %>
-            <% li_for(:properties, name: data['name'], class: 'sub-selected') do %>
-              <%= api_property_link data['name'], data['class']  %>
-            <% end %>
-          <% end %>
-        <% end %>
-      <% end %>
-    </ol>
+<body class="api api_index <%= page_classes %>">
+  <div id="content-wrapper">
+    <div id="content">
+      <%= yield %>
+    </div>
+  </div>
 
-    <ol id='toc-list'>
-      <li class='level-1'><a href="<%= sha_url %>" target="_blank"> Tag: <%= sha %></a></li>
-
-      <% li_for(:classes) do %>
-        <!-- <a href='#'>Classes</a> -->
-        <input type="Search" placeholder="Search" autosave="searchdoc" results="10" id="search" autocomplete="off">
-        <ol class="selected" id="all-items">
-          <% api_classes.each do |id, data| %>
-            <% li_for(:classes, name:data['name'], class: 'sub-selected') do %>
-              <%= api_class_link data['name'] %> <span class="score"></span>
-            <% end %>
-          <% end %>
-          <% api_methods.each do |data| %>
-            <% li_for(:methods, name: data['name'], class: 'sub-selected') do %>
-              <%= api_method_link data['name'], data['class']  %> <span class="score"></span>
-            <% end %>
-          <% end %>
-          <% api_properties.each do |data| %>
-            <% li_for(:properties, name: data['name'], class: 'sub-selected') do %>
-              <%= api_property_link data['name'], data['class']  %> <span class="score"></span>
-            <% end %>
-          <% end %>
-        </ol>
-      <% end %>
-    </ol>
-  <% end %>
-  <%= yield %>
-<% end %>
+  <div id="footer">
+    <div id="footer-wrapper">
+      <div class="info">
+        Copyright <%= Time.now.strftime('%Y') %> <a href="http://tilde.io">Tilde Inc.</a><br>
+        Design by <a href="http://www.heropixel.com">HeroPixel</a></br>
+        <a href="/team">Core Team</a> | <a href="/sponsors">Project Sponsors</a>
+      </div>
+      <div class="statement">Ember.js is free, open source and always will be.</div>
+      <div class="links">
+        <a class="twitter" href="http://twitter.com/emberjs">Twitter</a>
+        <a class="github" href="https://github.com/emberjs/ember.js">GitHub</a>
+        <a class="googleplus" href="https://plus.google.com/communities/106387049790387471205">Google+</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
