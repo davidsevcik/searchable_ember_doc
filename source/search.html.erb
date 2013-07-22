@@ -3,10 +3,7 @@
 <head>
   <meta charset="utf-8">
   <%= stylesheet_link_tag "site" %>
-
-  <script type="text/javascript" src="/javascripts/jquery.js"></script>
-  <script type="text/javascript" src="/javascripts/quicksilver.js"></script>
-  <script type="text/javascript" src="/javascripts/jquery.livesearch.js"></script>
+  <%= javascript_include_tag 'jquery', 'quicksilver', 'jquery.livesearch' %>
 
   <script type="text/javascript">
     $(function() {

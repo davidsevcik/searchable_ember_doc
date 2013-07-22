@@ -4,11 +4,8 @@
   <meta charset="utf-8">
   <title>Ember.js - <%= data.page.title || @title %></title>
   <link rel="shortcut icon" href="/images/favicon.png" />
-  <%= stylesheet_link_tag "site" %>
-  <%= stylesheet_link_tag "highlight" %>
-
-  <script type="text/javascript" src="/javascripts/jquery.js"></script>
-  <script type="text/javascript" src="/javascripts/jquery.bxSlider.min.js"></script>
+  <%= stylesheet_link_tag "site", "highlight" %>
+  <%= javascript_include_tag 'jquery', 'jquery.bxSlider.min' %>
 
   <script>
     $(function() {
@@ -115,16 +112,12 @@
 
   <div id="footer">
     <div id="footer-wrapper">
-      <div class="info">
-        Copyright <%= Time.now.strftime('%Y') %> <a href="http://tilde.io">Tilde Inc.</a><br>
-        Design by <a href="http://www.heropixel.com">HeroPixel</a></br>
-        <a href="/team">Core Team</a> | <a href="/sponsors">Project Sponsors</a>
+      <div class="info pull-right">Based on the original <a href="http://emberjs.com/api/">Ember.js API Doc</a>.
+        Copyright <%= Time.now.strftime('%Y') %> <a href="http://tilde.io">Tilde Inc.</a>
+        Design by <a href="http://www.heropixel.com">HeroPixel</a>
       </div>
-      <div class="statement">Ember.js is free, open source and always will be.</div>
-      <div class="links">
-        <a class="twitter" href="http://twitter.com/emberjs">Twitter</a>
-        <a class="github" href="https://github.com/emberjs/ember.js">GitHub</a>
-        <a class="googleplus" href="https://plus.google.com/communities/106387049790387471205">Google+</a>
+      <div class="info">
+        Searchable Ember API Doc developed by <a href="http://davidsevcik.com">David Sevcik</a>
       </div>
     </div>
   </div>
