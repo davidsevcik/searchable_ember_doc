@@ -252,7 +252,7 @@ ol {
     font-weight: bold;
     cursor: pointer;
 
-    &:hover, &:focus, &.active, &:target {
+    &:hover, &.active {
       color: $black-color;
     }
   }
@@ -324,7 +324,7 @@ ol {
           color: #d84a32;
           font-weight: normal;
           font-size: 13px;
-          &:hover {
+          &:hover, &.selected {
             background-color: #f2d1cb;
             color: black;
           }

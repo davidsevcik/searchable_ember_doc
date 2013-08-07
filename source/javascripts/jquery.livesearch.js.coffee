@@ -12,15 +12,38 @@
 
   $.liveUpdate:: =
     init: ->
-      self = this
+      self = @
       @setupCache()
-      @field.parents("form").submit ->
-        false
+      @field.parents("form").submit -> false
+      @field.keyup (event) ->
+        self.filter() if [13, 38, 40].indexOf(event.keyCode) is -1
+      @field.keydown (event) ->
+        switch event.keyCode
+          when 13 #enter
+            self.list.find('a.selected').click()
+            false
+          when 38 #up
+            selected = self.list.find('a.selected')
+            prev = selected.parent().prevAll(':visible:first')
+            if prev.length
+              selected.removeClass('selected')
+              prev.children('a').addClass('selected')
+            false
+          when 40 #down
+            selected = self.list.find('a.selected')
+            next = selected.parent().nextAll(':visible:first')
+            if next.length
+              selected.removeClass('selected')
+              next.children('a').addClass('selected')
+            false
 
-      @field.keyup -> self.filter()
       @field.on 'search', -> self.filter()
 
-      self.filter()
+      @list.find('a').click ->
+        self.list.find('a.selected').removeClass('selected')
+        $(@).addClass 'selected'
+
+      @filter()
 
     filter: ->
       if $.trim(@field.val()) is ""
@@ -41,8 +64,9 @@
 
     displayResults: (scores) ->
       @list.children("li").hide()
-      $.each scores, (i, score) =>
-        @rows[score[1]].show()#.find('.score').text(score[0])
+      @list.find('a.selected').removeClass('selected')
+      $.each scores, (i, score) => @rows[score[1]].show()#.find('.score').text(score[0])
+      @list.find('li.level-2:visible:first a').addClass 'selected'
 
 
     getScores: (term) ->
