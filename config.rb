@@ -17,9 +17,8 @@ set :markdown, :layout_engine => :erb,
 activate :toc
 activate :highlighter
 
-activate :api_docs,
-  default_class: 'Ember',
-  repo_url: 'https://github.com/emberjs/ember.js'
+activate :api_docs, default_class: 'Ember'
+
 
 ###
 # Blog

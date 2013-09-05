@@ -6,40 +6,58 @@ module APIDocs
       @repo_url
     end
 
+    def sha
+      @sha
+    end
+
     def registered(app, options={})
       app.helpers Helpers
 
-      @repo_url = options[:repo_url]
-
       app.after_configuration do
-        ApiClass.data = data.api
+        all_data = {}
+        all_data['modules']     = data.api['modules'].merge data.api_data['modules']
+        all_data['classes']     = data.api['classes'].merge data.api_data['classes']
+        all_data['files']       = data.api['files'] + data.api_data['files']
+        all_data['classitems']  = data.api['classitems'] + data.api_data['classitems']
+        ApiClass.data = all_data
 
-        # page '/*', directory_index: false, layout: 'layouts/api'
+        @modules = {}
+        data_hash = data.to_h
+        data_hash.each do |project_key, docs|
+          docs['modules'].each_key {|key| @modules[key] = docs['project'] }
+        end
 
-        data.api.fetch('classes').each do |name, data|
-          page "/classes/#{name}.html", proxy: 'api/class.html', layout: 'layouts/api' do
-            @title = name
-            @class = ApiClass.find(name)
-          end
+        data_hash.each do |project_key, docs|
+          @repo_url = docs['project']['repo_url']
+          @sha      = docs['project']['sha']
 
-          if name == options[:default_class]
-            page '/default-class.html', proxy: 'api/class.html', layout: 'layouts/api' do
+          # page '/*', directory_index: false, layout: 'layouts/api'
+
+          docs['classes'].each do |name, data|
+            page "/classes/#{name}.html", proxy: 'api/class.html', layout: 'layouts/api' do
               @title = name
               @class = ApiClass.find(name)
+            end
+
+            if name == options[:default_class]
+              page '/default-class.html', proxy: 'api/class.html', layout: 'layouts/api' do
+                @title = name
+                @class = ApiClass.find(name)
+              end
+            end
+          end
+
+          docs['modules'].each do |name, data|
+            page "/modules/#{name}.html", proxy: 'api/module.html', layout: 'layouts/api' do
+              @title = name
+              @module = data
             end
           end
         end
 
-        data.api.fetch('modules').each do |name, data|
-          page "/modules/#{name}.html", proxy: 'api/module.html', layout: 'layouts/api' do
-            @title = name
-            @module = data
-          end
-        end
-
         # Update data caches
-        files.changed("data/api.yml") do
-          ApiClass.data = data.api
+        files.changed("data/*.yml") do
+          ApiClass.data = all_data
         end
       end
     end
@@ -121,7 +139,7 @@ module APIDocs
           end
         end
 
-        self.class.data.classitems.each do |item|
+        self.class.data['classitems'].each do |item|
           next if item['class'] != self.name
 
           item = item.clone
@@ -248,42 +266,43 @@ module APIDocs
     end
 
     def api_modules
-      data.api['modules'].sort
+      (data.api['modules'].merge data.api_data['modules']).sort
     end
 
     def api_classes
-      data.api['classes'].sort
+      (data.api['classes'].merge data.api_data['classes']).sort
     end
 
     def api_namespaces
-      data.api['classes'].select{|_,c| c['static'] }.sort
+      (data.api['classes'].merge data.api_data['classes']).select{|_,c| c['static'] }.sort
     end
 
     def api_methods
-      data.api['classitems'].select {|x| x['itemtype'] == 'method'}.sort_by {|x| x['name']}
+      (data.api['classitems'] + data.api_data['classitems']).select {|x| x['itemtype'] == 'method' && !/\{/.match(x['name'])}.sort_by {|x| x['name']}
     end
 
     def api_properties
-      data.api['classitems'].select {|x| x['itemtype'] == 'property'}.sort_by {|x| x['name']}
+      (data.api['classitems'] + data.api_data['classitems']).select {|x| x['itemtype'] == 'property' && !/\{/.match(x['name'])}.sort_by {|x| x['name']}
     end
 
-    def api_file_link(item, options = {})
-      return unless item['file']
-      path = item['file'].sub(/^\.\.\//, '')
+    def api_file_link(item, modules, options = {})
+      if modules && item['file'] && (matched = /packages\/([^\/]+)/.match(item['file'])) && (project = modules[matched[1]])
+        path = item['file'].sub(/^\.\.\//, '')
 
-      options[:class] ||= 'api-file-link'
+        options[:class] ||= 'api-file-link'
 
-      title = path
-      link  = "#{APIDocs.repo_url}/tree/#{ApiClass.data['project']['sha']}/#{path}"
+        title = path
+        link  = "#{project['repo_url']}/tree/#{project['sha']}/#{path}"
 
-      if line = item['line']
-        title += ":#{line}"
-        link += "#L#{line}"
+        if line = item['line']
+          title += ":#{line}"
+          link += "#L#{line}"
+        end
+
+        title = options.delete(:title) || title
+
+        link_to title, link, options.merge(target: '_blank')
       end
-
-      title = options.delete(:title) || title
-
-      link_to title, link, options
     end
 
     def api_module(name)

@@ -1,7 +1,7 @@
 <h1>
   <%= @class['name'] %> <%= @class['static'] ? "Namespace" : "Class" %>
   <% if @class['file'] %>
-    <%= api_file_link @class, :class => "edit-page", :target => "_blank" %>
+    <%= api_file_link @class, @modules, :class => "edit-page", :target => "_blank" %>
   <% end %>
 </h1>
 
@@ -21,7 +21,7 @@
   <% end %>
 
   <% if @class['file'] %>
-    <p>Defined in: <%= api_file_link @class %></p>
+    <p>Defined in: <%= api_file_link @class, @modules %></p>
   <% end %>
 
   <% if @class['submodule'] %>

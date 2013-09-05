@@ -47,6 +47,37 @@ def generate_docs
   puts "Built #{sha}"
 end
 
+def ember_data_path
+  File.expand_path(ENV['EMBER_DATA_PATH'] || File.expand_path("../../ember.js", __FILE__))
+end
+
+def generate_data_docs
+  print "Generating docs data from #{ember_data_path}... "
+
+  sha = nil
+
+  Dir.chdir(ember_data_path) do
+    # returns either `tag` or `tag-numcommits-gSHA`
+    describe = `git describe --tags --always`.strip
+    sha = describe =~ /-g(.+)/ ? $1 : describe
+
+    Dir.chdir("docs") do
+      system("npm install") unless File.exist?('node_modules')
+      # Unfortunately -q doesn't always work so we get output
+      system("./node_modules/.bin/yuidoc -p -q")
+    end
+  end
+
+  # JSON is valid YAML
+  data = YAML.load_file(File.join(ember_data_path, "docs/build/data.json"))
+  data["project"]["sha"] = sha
+  File.open(File.expand_path("../data/api_data.yml", __FILE__), "w") do |f|
+    YAML.dump(data, f)
+  end
+
+  puts "Built #{sha}"
+end
+
 def build
   system "middleman build"
 end
@@ -54,6 +85,11 @@ end
 desc "Generate API Docs"
 task :generate_docs do
   generate_docs
+end
+
+desc "Generate Ember Data API Docs"
+task :generate_data_docs do
+  generate_data_docs
 end
 
 desc "Build the website"
