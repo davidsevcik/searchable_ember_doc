@@ -57,7 +57,10 @@
       @rows = []
       @list.children("li").each ->
         jqElm = $(@)
-        self.cache.push jqElm.find('.name').text().trim().replace(/^Ember./, '').toLowerCase()
+        #Shows methods associated with the searched classnames
+        className = jqElm.find('.name').text().trim().replace(/^Ember./, '').toLowerCase()
+        methodName = jqElm.find('.context').text().trim().replace(/^Ember./, '').toLowerCase()
+        self.cache.push  className + ' ' + methodName
         self.rows.push jqElm
 
       @cache_length = @cache.length
